@@ -375,7 +375,6 @@ function App() {
             >
               <ChatRoom />
             </div>
-
             <div className="flex-1">
               <FirebaseContactForm />
             </div>
