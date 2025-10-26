@@ -11,21 +11,25 @@ const PreLoader = () => {
 
   useEffect(() => {
     if (countDone) {
-      // Tampilkan welcome text setelah count selesai
       setShowWelcome(true);
 
-      // Fade teks welcome
       const fadeTextTimer = setTimeout(() => setFadeText(true), 1500);
-
-      // Fade seluruh screen
       const fadeScreenTimer = setTimeout(() => setFadeScreen(true), 2500);
 
-      // Scroll to top sebelum unmount
+      // Scroll ke hero section dengan smooth
       const scrollTimer = setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: "instant" });
+        const heroSection = document.querySelector(".hero");
+        if (heroSection) {
+          heroSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        } else {
+          // Fallback ke top
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
       }, 2000);
 
-      // Unmount preloader setelah animasi fade selesai
       const hideTimer = setTimeout(() => setLoading(false), 3500);
 
       return () => {
