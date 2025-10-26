@@ -105,8 +105,8 @@ function App() {
             {/* CTA Buttons - Enhanced */}
             <div className="flex items-center sm:gap-6 gap-4 flex-wrap">
               <a
-                href="./assets/CV.pdf"
-                download="Faris_Edrik_Prayoga_CV.pdf"
+                href="./assets/"
+                download=""
                 className="font-semibold bg-gradient-to-r from-purple-600 to-cyan-600 p-4 px-8 rounded-full border border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105"
               >
                 <ShinyText
