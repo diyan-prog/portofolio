@@ -10,36 +10,55 @@ const PreLoader = () => {
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
+    // Force scroll to top ketika component mount
+    window.scrollTo(0, 0);
+    document.documentElement.style.overflow = 'hidden';
+
     if (countDone) {
       setShowWelcome(true);
 
-      const fadeTextTimer = setTimeout(() => setFadeText(true), 1500);
-      const fadeScreenTimer = setTimeout(() => setFadeScreen(true), 2500);
-
-      // Scroll ke hero section dengan smooth
-      const scrollTimer = setTimeout(() => {
-        const heroSection = document.querySelector(".hero");
-        if (heroSection) {
-          heroSection.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        } else {
-          // Fallback ke top
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }
+      const fadeTextTimer = setTimeout(() => setFadeText(true), 1000);
+      
+      const fadeScreenTimer = setTimeout(() => {
+        setFadeScreen(true);
+        
+        // SCROLL TO TOP - MULTIPLE METHODS
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+        
+        // Force re-scroll setelah DOM update
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }, 100);
+        
       }, 2000);
 
-      const hideTimer = setTimeout(() => setLoading(false), 3500);
+      const hideTimer = setTimeout(() => {
+        setLoading(false);
+        document.documentElement.style.overflow = 'auto';
+        
+        // Final scroll to top setelah preloader hilang
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 200);
+      }, 3000);
 
       return () => {
         clearTimeout(fadeTextTimer);
         clearTimeout(fadeScreenTimer);
-        clearTimeout(scrollTimer);
         clearTimeout(hideTimer);
+        document.documentElement.style.overflow = 'auto';
       };
     }
   }, [countDone]);
+
+  // Force initial scroll to top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  }, []);
 
   return (
     loading && (
@@ -47,6 +66,7 @@ const PreLoader = () => {
         className={`w-screen h-screen fixed flex items-center justify-center bg-black z-[10000] overflow-hidden transition-all duration-1000 ${
           fadeScreen ? "opacity-0 scale-110" : "opacity-100 scale-100"
         }`}
+        style={{ top: 0, left: 0 }}
       >
         {/* Enhanced Aurora Background */}
         <div className="absolute inset-0">

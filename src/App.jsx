@@ -12,6 +12,7 @@ import ProjectModal from "./components/ProjectModal/ProjectModal";
 import Aurora from "./components/Aurora/Aurora";
 import AOS from "aos";
 import ChatRoom from "./components/ChatRoom";
+import FirebaseContactForm from "./components/FirebaseContactForm";
 import "aos/dist/aos.css";
 
 AOS.init();
@@ -375,73 +376,8 @@ function App() {
               <ChatRoom />
             </div>
 
-            {/* Contact Form - Enhanced */}
             <div className="flex-1">
-              <form
-                action="https://formsubmit.co/rissoppa21@gmail.com"
-                method="POST"
-                className="bg-zinc-900/40 backdrop-blur-sm border border-zinc-700/50 p-8 lg:p-12 rounded-2xl shadow-2xl"
-                autoComplete="off"
-                data-aos="fade-up"
-                data-aos-duration="1000"
-                data-aos-delay="500"
-                data-aos-once="true"
-              >
-                <div className="flex flex-col gap-8">
-                  <div className="flex flex-col gap-3">
-                    <label className="font-semibold text-white text-lg">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      name="Name"
-                      placeholder="Your full name..."
-                      className="border border-zinc-600 bg-zinc-800/50 text-white p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 placeholder-zinc-400"
-                      required
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <label className="font-semibold text-white text-lg">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      name="Email"
-                      placeholder="your.email@example.com"
-                      className="border border-zinc-600 bg-zinc-800/50 text-white p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 placeholder-zinc-400"
-                      required
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <label
-                      htmlFor="message"
-                      className="font-semibold text-white text-lg"
-                    >
-                      Message
-                    </label>
-                    <textarea
-                      name="message"
-                      id="message"
-                      cols="45"
-                      rows="6"
-                      placeholder="Tell me about your project or just say hello..."
-                      className="border border-zinc-600 bg-zinc-800/50 text-white p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 placeholder-zinc-400 resize-none"
-                      required
-                    ></textarea>
-                  </div>
-
-                  <div className="text-center pt-4">
-                    <button
-                      type="submit"
-                      className="font-semibold bg-gradient-to-r from-purple-600 to-cyan-600 p-4 px-8 rounded-full w-full cursor-pointer border border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 text-white text-lg"
-                    >
-                      Send Message
-                    </button>
-                  </div>
-                </div>
-              </form>
+              <FirebaseContactForm />
             </div>
           </div>
         </div>
