@@ -20,12 +20,18 @@ const PreLoader = () => {
       // Fade seluruh screen
       const fadeScreenTimer = setTimeout(() => setFadeScreen(true), 2500);
 
+      // Scroll to top sebelum unmount
+      const scrollTimer = setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }, 2000);
+
       // Unmount preloader setelah animasi fade selesai
       const hideTimer = setTimeout(() => setLoading(false), 3500);
 
       return () => {
         clearTimeout(fadeTextTimer);
         clearTimeout(fadeScreenTimer);
+        clearTimeout(scrollTimer);
         clearTimeout(hideTimer);
       };
     }
