@@ -8,7 +8,7 @@ import {
   query,
   orderBy,
   serverTimestamp,
-  limit
+  limit,
 } from "firebase/firestore";
 
 export default function ChatRoom() {
@@ -29,22 +29,24 @@ export default function ChatRoom() {
 
   // Cek login
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
     return () => unsub();
   }, []);
 
   // Ambil pesan real-time
   useEffect(() => {
     const q = query(
-      collection(db, "messages"), 
-      orderBy("createdAt", "desc"),
+      collection(db, "messages"),
+      orderBy("createdAt", "asc"), // Diubah ke asc untuk urutan normal
       limit(50)
     );
     const unsub = onSnapshot(q, (snapshot) => {
-      const messagesData = snapshot.docs.map((doc) => ({ 
-        id: doc.id, 
-        ...doc.data() 
-      })).reverse();
+      const messagesData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       setMessages(messagesData);
     });
     return () => unsub();
@@ -53,20 +55,21 @@ export default function ChatRoom() {
   // Kirim pesan
   const sendMessage = async (e) => {
     e.preventDefault();
-    if (!message.trim() || isLoading) return;
+    if (!message.trim() || isLoading || !user) return;
 
     setIsLoading(true);
     try {
       await addDoc(collection(db, "messages"), {
-        text: message,
+        text: message.trim(),
         uid: user.uid,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        createdAt: serverTimestamp()
+        displayName: user.displayName || "Anonymous",
+        photoURL: user.photoURL || "https://via.placeholder.com/40",
+        createdAt: serverTimestamp(),
       });
       setMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
+      alert("Failed to send message. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -74,17 +77,20 @@ export default function ChatRoom() {
 
   const formatTime = (timestamp) => {
     if (!timestamp) return "";
-    const date = timestamp.toDate();
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: false 
-    });
+    try {
+      const date = timestamp.toDate();
+      return date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    } catch (error) {
+      return "";
+    }
   };
 
   return (
     <div className="bg-gradient-to-br from-zinc-900 to-zinc-800 border border-zinc-700/50 p-6 rounded-2xl shadow-2xl max-w-xl mx-auto mt-5 backdrop-blur-sm">
-      
       {/* Header */}
       <div className="text-center mb-6">
         <div className="flex items-center justify-center gap-3 mb-2">
@@ -95,7 +101,9 @@ export default function ChatRoom() {
           <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
         </div>
         <p className="text-zinc-400 text-sm">
-          {user ? `Welcome, ${user.displayName}!` : "Join the conversation"}
+          {user
+            ? `Welcome, ${user.displayName || "User"}!`
+            : "Join the conversation"}
         </p>
       </div>
 
@@ -103,13 +111,18 @@ export default function ChatRoom() {
       {user && (
         <div className="flex justify-between items-center mb-4 p-4 bg-zinc-800/50 rounded-xl border border-zinc-700/30">
           <div className="flex items-center gap-3">
-            <img 
-              src={user.photoURL} 
-              alt="avatar" 
-              className="w-10 h-10 rounded-full border-2 border-purple-500/50" 
+            <img
+              src={user.photoURL || "https://via.placeholder.com/40"}
+              alt="avatar"
+              className="w-10 h-10 rounded-full border-2 border-purple-500/50"
+              onError={(e) => {
+                e.target.src = "https://via.placeholder.com/40";
+              }}
             />
             <div>
-              <span className="text-white font-semibold block">{user.displayName}</span>
+              <span className="text-white font-semibold block">
+                {user.displayName || "User"}
+              </span>
               <span className="text-green-400 text-xs flex items-center gap-1">
                 <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                 Online
@@ -136,13 +149,18 @@ export default function ChatRoom() {
           messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex gap-3 ${msg.uid === user?.uid ? "justify-end" : "justify-start"}`}
+              className={`flex gap-3 ${
+                msg.uid === user?.uid ? "justify-end" : "justify-start"
+              }`}
             >
               {msg.uid !== user?.uid && (
                 <img
                   src={msg.photoURL || "https://via.placeholder.com/40"}
                   alt="avatar"
                   className="w-8 h-8 rounded-full flex-shrink-0 mt-1 border border-zinc-600"
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/40";
+                  }}
                 />
               )}
               <div className="flex flex-col max-w-[70%]">
@@ -159,9 +177,11 @@ export default function ChatRoom() {
                   }`}
                 >
                   <div className="break-words">{msg.text}</div>
-                  <div className={`text-xs opacity-60 mt-1 text-right ${
-                    msg.uid === user?.uid ? 'text-blue-100' : 'text-zinc-400'
-                  }`}>
+                  <div
+                    className={`text-xs opacity-60 mt-1 text-right ${
+                      msg.uid === user?.uid ? "text-blue-100" : "text-zinc-400"
+                    }`}
+                  >
                     {formatTime(msg.createdAt)}
                   </div>
                 </div>
@@ -171,6 +191,9 @@ export default function ChatRoom() {
                   src={msg.photoURL || "https://via.placeholder.com/40"}
                   alt="avatar"
                   className="w-8 h-8 rounded-full flex-shrink-0 mt-1 border border-blue-500/30"
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/40";
+                  }}
                 />
               )}
             </div>
@@ -181,7 +204,10 @@ export default function ChatRoom() {
 
       {/* Login / Message Form */}
       {user ? (
-        <form onSubmit={sendMessage} className="flex gap-3 flex-wrap sm:flex-nowrap w-full">
+        <form
+          onSubmit={sendMessage}
+          className="flex gap-3 flex-wrap sm:flex-nowrap w-full"
+        >
           <div className="flex-1 relative">
             <input
               type="text"
@@ -190,6 +216,7 @@ export default function ChatRoom() {
               placeholder="Type your message..."
               className="w-full p-3 pr-12 rounded-xl bg-zinc-800/50 text-white border border-zinc-700/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300"
               disabled={isLoading}
+              maxLength={500}
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400">
               {isLoading ? (
@@ -236,7 +263,8 @@ export default function ChatRoom() {
       {/* Online Counter */}
       <div className="text-center mt-4">
         <p className="text-zinc-500 text-sm">
-          {messages.length} messages • Real-time chat
+          {messages.length} {messages.length === 1 ? "message" : "messages"} •
+          Real-time chat
         </p>
       </div>
 
